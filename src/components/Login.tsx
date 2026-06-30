@@ -163,7 +163,7 @@ export default function Login({ isDarkMode }: LoginProps) {
         <div className="flex flex-col items-center mb-8">
           {/* New BTN (Bank Tabungan Negara) Logo - Precise Vector Replication */}
           <div className="flex flex-col items-center mb-6" id="btn-logo-badge">
-            <div className="flex flex-col items-center justify-center p-5 pb-4 bg-white dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-2xl shadow-sm px-8 min-w-[160px]">
+            <div className="flex flex-col items-center justify-center p-5 pb-4 bg-white border border-zinc-200 rounded-2xl shadow-sm px-8 min-w-[160px]">
               <div className="relative inline-flex items-end">
                 {/* Lowercase 'btn' in bright bank blue */}
                 <span className="text-5xl font-extrabold tracking-tight text-[#0066f6] leading-none select-none font-sans lowercase">
@@ -184,10 +184,10 @@ export default function Login({ isDarkMode }: LoginProps) {
               </div>
               
               {/* Optional tiny elegant label */}
-              <span className="text-[7.5px] font-bold tracking-[0.25em] text-zinc-400 dark:text-zinc-500 mt-3.5 uppercase text-center leading-none">
+              <span className="text-[7.5px] font-bold tracking-[0.25em] text-zinc-400 mt-3.5 uppercase text-center leading-none">
                 Bank Tabungan Negara
               </span>
-              <span className="text-[8px] font-semibold text-zinc-500 dark:text-zinc-400 mt-1.5 text-center leading-none">
+              <span className="text-[8px] font-semibold text-zinc-500 mt-1.5 text-center leading-none">
                 PT Bank Tabungan Negara (Persero) Tbk.
               </span>
             </div>
