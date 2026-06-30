@@ -1031,7 +1031,7 @@ export default function App() {
 
               <div className="flex flex-col items-center text-center mb-5 bg-zinc-50 dark:bg-zinc-900/40 p-4 rounded-xl border border-zinc-100 dark:border-zinc-900">
                 <img 
-                  src="/btn-logo.svg" 
+                  src="/btn-logo.png" 
                   alt="BTN Logo" 
                   className="w-16 h-16 rounded-xl shadow-md mb-2.5 border border-blue-500/15"
                   referrerPolicy="no-referrer"
