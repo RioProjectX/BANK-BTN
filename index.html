@@ -4,11 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BTN Tracker Nasabah</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='5' y='15' width='90' height='70' rx='15' fill='%2300529C'/%3E%3Ctext x='50' y='58' font-family='Arial, sans-serif' font-weight='900' font-size='38' fill='%23FFFFFF' text-anchor='middle' letter-spacing='-2'%3Ebtn%3C/text%3E%3Crect x='25' y='66' width='50' height='8' fill='%23ED1C24' rx='2'/%3E%3C/svg%3E" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/btn-logo.svg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="BTN Tracker" />
+    <link rel="apple-touch-icon" href="/btn-logo.svg" />
+    <meta name="theme-color" content="#00529C" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('Service Worker registered successfully:', reg.scope))
+            .catch((err) => console.error('Service Worker registration failed:', err));
+        });
+      }
+    </script>
   </body>
 </html>
 

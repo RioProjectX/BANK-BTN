@@ -20,7 +20,8 @@ import CustomerTable from './components/CustomerTable';
 import { 
   Sun, Moon, LogOut, 
   Printer, Database, Sparkles, RefreshCw, LayoutDashboard, UserX, Loader2, Bookmark,
-  Settings, X, User as UserIcon, Camera, Building, Phone, Award
+  Settings, X, User as UserIcon, Camera, Building, Phone, Award,
+  Download, Smartphone, Laptop
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -78,6 +79,12 @@ const DUMMY_SEED_DATA = [
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<any>(null);
+  
+  // PWA states
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [showPwaInstallModal, setShowPwaInstallModal] = useState(false);
+  
   const [authChecking, setAuthChecking] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loadingData, setLoadingData] = useState(false);
@@ -164,6 +171,51 @@ export default function App() {
     window.addEventListener('auth-fallback-local-demo', handleLocalDemo);
     return () => window.removeEventListener('auth-fallback-local-demo', handleLocalDemo);
   }, []);
+
+  // Listen for PWA Install prompt and status
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    const handleAppInstalled = () => {
+      setIsInstallable(false);
+      setDeferredPrompt(null);
+      console.log('App was successfully installed on the home screen');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    // Initial check if already running in standalone PWA app mode
+    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone) {
+      setIsInstallable(false);
+    } else {
+      // Keep it active so any browser can trigger the helpful download helper card/modal
+      setIsInstallable(true);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setIsInstallable(false);
+      }
+    } else {
+      // Show the beautiful modal with instruction slides/steps for iOS & Desktop browsers
+      setShowPwaInstallModal(true);
+    }
+  };
 
   // Sync / Stream data from Firestore real-time for Current User
   useEffect(() => {
@@ -467,6 +519,20 @@ export default function App() {
             >
               <Printer className="w-4.5 h-4.5" />
             </button>
+
+            {/* Download/Install PWA button */}
+            {isInstallable && (
+              <button
+                id="install-pwa-btn"
+                type="button"
+                onClick={handleInstallApp}
+                className="p-2 md:px-3.5 rounded-xl cursor-pointer hover:scale-105 transition-all flex items-center justify-center gap-1.5 font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm shadow-emerald-500/10"
+                title="Unduh / Pasang Aplikasi BTN Tracker"
+              >
+                <Download className="w-4 h-4 text-white" />
+                <span className="hidden md:inline">Unduh Aplikasi</span>
+              </button>
+            )}
 
             {/* Settings button */}
             <button
@@ -932,6 +998,110 @@ export default function App() {
                 >
                   Simpan Perubahan
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {showPwaInstallModal && (
+          <div className="fixed inset-0 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className={`w-full max-w-md rounded-2xl shadow-2xl border p-5 ${
+                isDarkMode ? 'bg-zinc-950 border-zinc-800 text-zinc-100' : 'bg-white border-zinc-200 text-zinc-800'
+              }`}
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-900 mb-4">
+                <div className="flex items-center gap-2 font-bold text-sm">
+                  <Download className="w-4.5 h-4.5 text-emerald-500 animate-pulse" />
+                  <span>Pasang Aplikasi BTN Tracker</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPwaInstallModal(false)}
+                  className={`p-1.5 rounded-lg cursor-pointer ${
+                    isDarkMode ? 'hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200' : 'hover:bg-zinc-100 text-zinc-500 hover:text-zinc-800'
+                  }`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex flex-col items-center text-center mb-5 bg-zinc-50 dark:bg-zinc-900/40 p-4 rounded-xl border border-zinc-100 dark:border-zinc-900">
+                <img 
+                  src="/btn-logo.svg" 
+                  alt="BTN Logo" 
+                  className="w-16 h-16 rounded-xl shadow-md mb-2.5 border border-blue-500/15"
+                  referrerPolicy="no-referrer"
+                />
+                <h3 className="font-bold text-sm">BTN Tracker Nasabah</h3>
+                <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 max-w-[280px]">
+                  Pasang aplikasi di layar utama perangkat Anda untuk akses instan dan performa super responsif!
+                </p>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                {/* Platform Guides */}
+                <div className="grid grid-cols-1 gap-3">
+                  {/* Android / Desktop */}
+                  <div className={`p-3.5 rounded-xl border ${
+                    isDarkMode ? 'bg-zinc-900/40 border-zinc-800' : 'bg-slate-50 border-slate-100'
+                  }`}>
+                    <div className="flex items-center gap-1.5 font-bold mb-2 text-blue-600 dark:text-blue-400">
+                      <Laptop className="w-4 h-4" />
+                      <span>Android & Chrome / Edge (Desktop)</span>
+                    </div>
+                    <ul className="list-decimal list-inside space-y-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed pl-1">
+                      <li>Tekan tombol <strong className="text-emerald-500">Unduh Aplikasi</strong> di baris navigasi atas.</li>
+                      <li>Atau klik tombol <strong className="font-bold">Install</strong> yang muncul otomatis di bilah alamat url browser Anda.</li>
+                      <li>Konfirmasi pemasangan, aplikasi akan muncul di desktop / menu aplikasi Anda.</li>
+                    </ul>
+                  </div>
+
+                  {/* iOS Safari */}
+                  <div className={`p-3.5 rounded-xl border ${
+                    isDarkMode ? 'bg-zinc-900/40 border-zinc-800' : 'bg-slate-50 border-slate-100'
+                  }`}>
+                    <div className="flex items-center gap-1.5 font-bold mb-2 text-indigo-600 dark:text-indigo-400">
+                      <Smartphone className="w-4 h-4" />
+                      <span>Apple iOS (iPhone / iPad)</span>
+                    </div>
+                    <ul className="list-decimal list-inside space-y-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed pl-1">
+                      <li>Buka aplikasi ini menggunakan browser bawaan <strong className="font-bold text-zinc-700 dark:text-zinc-300">Safari</strong>.</li>
+                      <li>Ketuk tombol <strong className="font-bold text-blue-500">Share / Bagikan</strong> di bagian bawah layar.</li>
+                      <li>Pilih menu <strong className="font-bold text-zinc-700 dark:text-zinc-300">"Tambahkan ke Layar Utama"</strong> (Add to Home Screen).</li>
+                      <li>Klik <strong className="font-bold text-blue-500">Tambah</strong> di pojok kanan atas.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 pt-3 border-t border-zinc-100 dark:border-zinc-900 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPwaInstallModal(false)}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer ${
+                    isDarkMode 
+                      ? 'bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800' 
+                      : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700'
+                  }`}
+                >
+                  Tutup
+                </button>
+                {deferredPrompt && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPwaInstallModal(false);
+                      handleInstallApp();
+                    }}
+                    className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 hover:scale-[1.02] cursor-pointer transition-all shadow-md shadow-blue-500/15"
+                  >
+                    Instal Sekarang
+                  </button>
+                )}
               </div>
             </motion.div>
           </div>
