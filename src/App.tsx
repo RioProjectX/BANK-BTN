@@ -574,7 +574,7 @@ export default function App() {
             <div>
               <h1 className="font-bold text-base md:text-lg leading-tight flex items-center gap-2">
                 <span>Pencatatan Rekening Nasabah</span>
-                <span className="text-[10px] font-semibold border px-2 py-0.5 rounded-full bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-zinc-700">
+                <span className="text-[10px] font-bold border px-2 py-0.5 rounded-full bg-blue-50 dark:bg-zinc-800 text-blue-800 dark:text-blue-400 border-blue-200 dark:border-zinc-700">
                   v1.2.0
                 </span>
               </h1>
@@ -690,17 +690,20 @@ export default function App() {
             {/* Profile info details */}
             <div className="flex flex-col">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-bold text-sm text-zinc-800 dark:text-zinc-100">
+                <span 
+                  className="font-bold text-sm"
+                  style={{ color: isDarkMode ? '#ffffff' : '#000000' }}
+                >
                   {customSalesName || 'Pegawai Tamu'}
                 </span>
                 {salesNip && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-semibold bg-blue-50 dark:bg-zinc-800 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-zinc-700">
+                  <span className="text-[10px] px-2 py-0.5 rounded-md font-mono font-bold bg-blue-50 dark:bg-zinc-800 text-blue-800 dark:text-blue-400 border border-blue-200 dark:border-zinc-700">
                     NIP: {salesNip}
                   </span>
                 )}
               </div>
               
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">
                 {salesDivision && (
                   <span className="flex items-center gap-1">
                     <Building className="w-3.5 h-3.5 text-zinc-400" />
@@ -743,7 +746,7 @@ export default function App() {
                 setTempSalesPhone(salesPhone);
                 setShowSettingsModal(true);
               }}
-              className="px-2.5 py-1 text-[11px] font-semibold border border-blue-100 dark:border-zinc-800 bg-blue-50/50 dark:bg-zinc-900 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="px-2.5 py-1 text-[11px] font-bold border border-blue-200 dark:border-zinc-800 bg-blue-50 dark:bg-zinc-900 text-blue-800 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             >
               Ubah Profil
             </button>
