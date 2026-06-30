@@ -564,7 +564,13 @@ export default function App() {
             {currentUser?.uid !== 'demo_user_local_offline' && (
               <span className="flex items-center gap-1">
                 <span className="text-zinc-400">Status Akun:</span>
-                <strong className="text-blue-500 font-semibold">{currentUser?.isAnonymous ? 'Demo Mode' : 'Aktif'}</strong>
+                {currentUser?.email === 'admin@btn.co.id' || currentUser?.uid === 'admin_btn_shared_public' ? (
+                  <strong className="text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100/50 dark:border-emerald-900/30">
+                    Admin Mode
+                  </strong>
+                ) : (
+                  <strong className="text-blue-500 font-semibold">{currentUser?.isAnonymous ? 'Demo Mode' : 'Aktif'}</strong>
+                )}
               </span>
             )}
             <button
