@@ -85,6 +85,10 @@ export default function App() {
   const [isInstallable, setIsInstallable] = useState(false);
   const [showPwaInstallModal, setShowPwaInstallModal] = useState(false);
   
+  // Custom 0-100% Animated Loading Screen states
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isAppLoading, setIsAppLoading] = useState(true);
+  
   const [authChecking, setAuthChecking] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loadingData, setLoadingData] = useState(false);
@@ -216,6 +220,27 @@ export default function App() {
       setShowPwaInstallModal(true);
     }
   };
+
+  // Organic 0% - 100% Loading Progress Simulation
+  useEffect(() => {
+    let currentProgress = 0;
+    const interval = setInterval(() => {
+      // Small random increments for a natural, organic feel
+      const increment = Math.floor(Math.random() * 5) + 3;
+      currentProgress = Math.min(currentProgress + increment, 100);
+      setLoadingProgress(currentProgress);
+
+      if (currentProgress >= 100) {
+        clearInterval(interval);
+        // Retain 100% for a slight moment for maximum aesthetic satisfaction
+        setTimeout(() => {
+          setIsAppLoading(false);
+        }, 550);
+      }
+    }, 45);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Sync / Stream data from Firestore real-time for Current User
   useEffect(() => {
@@ -413,12 +438,82 @@ export default function App() {
   const monthlyStr = new Date().toISOString().substring(0, 7); // YYYY-MM
   const customersCountThisMonth = customers.filter(c => c.registrationDate.startsWith(monthlyStr) && c.status === 'Berhasil').length;
 
-  if (authChecking) {
+  if (isAppLoading || authChecking) {
+    // Dynamic status text based on progress percentage
+    const getLoadingMessage = (progress: number) => {
+      if (progress < 25) return "Menginisialisasi modul sistem...";
+      if (progress < 50) return "Menghubungkan ke server aman BTN...";
+      if (progress < 75) return "Memproses otentikasi data awan...";
+      if (progress < 95) return "Sinkronisasi performa nasabah...";
+      return "Menyiapkan antarmuka portal...";
+    };
+
     return (
-      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${isDarkMode ? 'bg-zinc-950 text-blue-400' : 'bg-blue-50/50 text-blue-700'}`}>
-        <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 animate-spin mx-auto text-blue-600" />
-          <p className="font-semibold text-sm">Menyiapkan portal aplikasi...</p>
+      <div className={`min-h-screen flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-500 ${isDarkMode ? 'bg-[#040815]' : 'bg-slate-50'}`}>
+        {/* Soft elegant glowing ambient background blobs */}
+        <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full bg-blue-500/10 blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-red-500/5 blur-3xl animate-pulse delay-1000" />
+        
+        <div className="z-10 flex flex-col items-center justify-center max-w-sm px-6 text-center">
+          {/* Brand Lettermark Container */}
+          <div className="relative mb-6 flex flex-col items-center select-none" id="animated-loading-logo">
+            <div className="flex items-baseline justify-center tracking-tighter">
+              <motion.span 
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.1, type: "spring" }}
+                className={`text-8xl font-black font-sans leading-none ${isDarkMode ? 'text-white' : 'text-[#00529C]'}`}
+              >
+                b
+              </motion.span>
+              <motion.span 
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
+                className={`text-8xl font-black font-sans leading-none ${isDarkMode ? 'text-white' : 'text-[#00529C]'}`}
+              >
+                t
+              </motion.span>
+              <motion.span 
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.3, type: "spring" }}
+                className={`text-8xl font-black font-sans leading-none ${isDarkMode ? 'text-white' : 'text-[#00529C]'}`}
+              >
+                n
+              </motion.span>
+            </div>
+
+            {/* BTN Logo Underline Bar expanding matching loading percentage */}
+            <div className="w-44 h-2 mt-4 bg-zinc-200 dark:bg-zinc-800/80 rounded-full overflow-hidden relative border border-zinc-300/10">
+              <div 
+                className="h-full bg-[#ED1C24] rounded-full transition-all duration-150 ease-out shadow-[0_0_12px_rgba(237,28,36,0.8)]"
+                style={{ width: `${loadingProgress}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Digital Percentage Counter */}
+          <div className="font-mono text-2xl font-bold tracking-wider text-[#00529C] dark:text-blue-400 mb-2">
+            <span className="tabular-nums">{loadingProgress}</span>%
+          </div>
+
+          {/* Changing status description text */}
+          <div className="h-6 flex items-center justify-center">
+            <p className="text-[11px] font-bold tracking-widest uppercase text-zinc-400 dark:text-zinc-500 transition-all duration-300">
+              {getLoadingMessage(loadingProgress)}
+            </p>
+          </div>
+
+          {/* Bottom brand stamping signature */}
+          <div className="absolute bottom-10 left-0 right-0 text-center pointer-events-none">
+            <div className="text-[10px] font-bold tracking-[0.25em] uppercase text-zinc-400 dark:text-zinc-600">
+              BANK TABUNGAN NEGARA
+            </div>
+            <div className="text-[8px] font-mono tracking-widest text-zinc-500 dark:text-zinc-700 mt-1.5">
+              PORTAL PELACAK NASABAH v1.2.0
+            </div>
+          </div>
         </div>
       </div>
     );
