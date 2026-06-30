@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "Customer": {
+      "title": "Customer",
+      "description": "Nasabah yang berhasil membuka rekening melalui sales perbankan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "bank": { "type": "string", "enum": ["BTN", "SeaBank"] },
+        "registrationDate": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["Berhasil", "Pending", "Ditolak"] },
+        "notes": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "phone", "bank", "registrationDate", "status", "userId"]
+    },
+    "MonthlyTarget": {
+      "title": "Monthly Target",
+      "description": "Target bulanan nasabah yang ingin dicapai oleh sales perbankan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "month": { "type": "string" },
+        "target": { "type": "number" }
+      },
+      "required": ["userId", "month", "target"]
+    }
+  },
+  "firestore": {
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Collection of all sales leads or registered customers"
+    },
+    "/targets/{targetId}": {
+      "schema": "MonthlyTarget",
+      "description": "Monthly targets set by the sales user"
+    }
+  }
+}
