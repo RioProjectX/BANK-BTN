@@ -27,18 +27,48 @@ export default function Login({ isDarkMode }: LoginProps) {
     setError('');
     setLoading(true);
 
+    const lowercaseEmail = email.toLowerCase().trim();
+
+    // Special instant admin login that works across devices via Cloud Sync
+    if (lowercaseEmail === 'admin@btn.co.id' && (password === 'admin' || password === 'btnadmin123')) {
+      try {
+        // Try Firebase Auth first so it is securely authenticated if enabled
+        await signInWithEmailAndPassword(auth, lowercaseEmail, password);
+      } catch (err: any) {
+        console.warn('Firebase Auth standard login failed or disabled for admin. Bypassing directly to Cloud Sync mode...', err);
+        // Force successful login to special shared cloud ID
+        window.dispatchEvent(new CustomEvent('auth-fallback-local-demo', { 
+          detail: { email: 'admin@btn.co.id', uid: 'admin_btn_shared_public' } 
+        }));
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     try {
       if (isRegister) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        await createUserWithEmailAndPassword(auth, lowercaseEmail, password);
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, lowercaseEmail, password);
       }
     } catch (err: any) {
+      // If user not found during login, automatically try to register to make it instant!
+      if (!isRegister && (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential')) {
+        try {
+          console.info('User not registered, performing automatic instant registration...', lowercaseEmail);
+          await createUserWithEmailAndPassword(auth, lowercaseEmail, password);
+          return;
+        } catch (regErr: any) {
+          err = regErr; // use registration error if fallback fails
+        }
+      }
+
       if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/admin-restricted-operation' || err.code === 'auth/configuration-not-found') {
-        console.warn('Firebase Auth method disabled. Falling back to local offline workspace for email:', email);
+        console.warn('Firebase Auth method disabled. Falling back to local offline workspace for email:', lowercaseEmail);
         // Automatically sign in locally to prevent blocking the user
         window.dispatchEvent(new CustomEvent('auth-fallback-local-demo', { 
-          detail: { email: email || 'pegawai.tamu@workspace.local', uid: 'demo_user_local_offline' } 
+          detail: { email: lowercaseEmail || 'pegawai.tamu@workspace.local', uid: 'demo_user_local_offline' } 
         }));
         return;
       }

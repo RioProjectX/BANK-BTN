@@ -222,7 +222,7 @@ export default function App() {
   // Auth logout
   const handleLogout = async () => {
     try {
-      if (currentUser?.uid === 'demo_user_local_offline') {
+      if (currentUser?.uid === 'demo_user_local_offline' || currentUser?.uid === 'admin_btn_shared_public') {
         setCurrentUser(null);
         return;
       }
