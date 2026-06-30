@@ -92,10 +92,7 @@ export default function App() {
   const [authChecking, setAuthChecking] = useState(true);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  });
+  const isDarkMode = false;
 
   // Edit states
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
@@ -352,18 +349,22 @@ export default function App() {
       return;
     }
 
+    // Clean data of any undefined fields to prevent Firestore addDoc/updateDoc failures
+    const cleanData = Object.entries(formData).reduce((acc, [key, value]) => {
+      acc[key] = value === undefined ? null : value;
+      return acc;
+    }, {} as Record<string, any>);
+
     if (editingCustomer) {
       // Perform Update in Firestore
       const docRef = doc(db, 'customers', editingCustomer.id);
-      await updateDoc(docRef, {
-        ...formData
-      });
+      await updateDoc(docRef, cleanData);
       setEditingCustomer(null);
       setShowEditForm(false);
     } else {
       // Perform Create in Firestore
       await addDoc(collection(db, 'customers'), {
-        ...formData,
+        ...cleanData,
         userId: currentUser.uid,
         createdAt: new Date().toISOString()
       });
@@ -585,21 +586,6 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Dark & Light Theme selection toggler */}
-            <button
-              id="theme-toggler"
-              type="button"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className={`p-2 rounded-xl border cursor-pointer hover:scale-105 transition-all ${
-                isDarkMode 
-                  ? 'border-zinc-800 bg-zinc-950 text-amber-400' 
-                  : 'border-zinc-200 bg-zinc-50 text-indigo-600'
-              }`}
-              title={isDarkMode ? "Aktifkan Light Mode" : "Aktifkan Dark Mode"}
-            >
-              {isDarkMode ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
-            </button>
-
             {/* Print Data button */}
             <button
               id="print-btn"

@@ -347,14 +347,14 @@ export default function CustomerTable({ customers, onEdit, onDelete, isDarkMode 
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse" id="desktop-customer-table">
               <thead>
-                <tr className={`border-b text-[10px] uppercase font-bold tracking-wider ${isDarkMode ? 'border-zinc-850 text-zinc-500' : 'border-zinc-150 text-zinc-400'}`}>
-                  <th className="pb-3 pt-1">Nama Nasabah</th>
-                  <th className="pb-3 pt-1">Nomor HP</th>
-                  <th className="pb-3 pt-1 text-center">Bank</th>
-                  <th className="pb-3 pt-1">Tanggal</th>
-                  <th className="pb-3 pt-1 text-center">Status</th>
-                  <th className="pb-3 pt-1">Catatan</th>
-                  <th className="pb-3 pt-1 text-right">Aksi</th>
+                <tr className={`border-b text-[10px] uppercase font-extrabold tracking-wider ${isDarkMode ? 'border-zinc-850 text-black' : 'border-zinc-150 text-black'}`}>
+                  <th className="pb-3 pt-1 text-black font-extrabold">Nama Nasabah</th>
+                  <th className="pb-3 pt-1 text-black font-extrabold">Nomor HP</th>
+                  <th className="pb-3 pt-1 text-center text-black font-extrabold">Bank</th>
+                  <th className="pb-3 pt-1 text-black font-extrabold">Tanggal</th>
+                  <th className="pb-3 pt-1 text-center text-black font-extrabold">Status</th>
+                  <th className="pb-3 pt-1 text-black font-extrabold">Catatan</th>
+                  <th className="pb-3 pt-1 text-right text-black font-extrabold">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -365,7 +365,7 @@ export default function CustomerTable({ customers, onEdit, onDelete, isDarkMode 
                       isDarkMode ? 'border-zinc-855/40' : 'border-zinc-100'
                     }`}
                   >
-                    <td className="py-3 font-semibold text-zinc-800 dark:text-zinc-100">
+                    <td className="py-3 font-bold text-black">
                       <div className="flex items-center gap-2">
                         {customer.photoUrl ? (
                           <img 
@@ -379,10 +379,10 @@ export default function CustomerTable({ customers, onEdit, onDelete, isDarkMode 
                             {customer.name.charAt(0).toUpperCase()}
                           </div>
                         )}
-                        <span>{customer.name}</span>
+                        <span className="text-black font-extrabold">{customer.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 font-mono text-zinc-500">{customer.phone}</td>
+                    <td className="py-3 font-mono text-black font-bold">{customer.phone}</td>
                     <td className="py-3 text-center">
                       <span className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-wider font-mono inline-block uppercase ${
                         customer.bank === 'BTN' ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300' : 'bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300'
@@ -390,19 +390,19 @@ export default function CustomerTable({ customers, onEdit, onDelete, isDarkMode 
                         {customer.bank}
                       </span>
                     </td>
-                    <td className="py-3 text-zinc-500 dark:text-zinc-400">{customer.registrationDate}</td>
+                    <td className="py-3 text-black font-bold">{customer.registrationDate}</td>
                     <td className="py-3 text-center">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold inline-block min-w-[70px] border ${
                         customer.status === 'Berhasil' 
                           ? 'bg-emerald-50 border-emerald-250 text-emerald-800 dark:bg-emerald-950/20 dark:border-transparent dark:text-emerald-400' 
                           : customer.status === 'Pending' 
-                            ? 'bg-amber-50 border-amber-250 text-amber-800 dark:bg-amber-950/20 dark:border-transparent dark:text-amber-400' 
-                            : 'bg-red-50 border-red-250 text-red-800 dark:bg-red-950/20 dark:border-transparent dark:text-red-400'
+                            ? 'bg-amber-50 border-amber-250 text-amber-800 dark:bg-amber-950/20 dark:border-transparent dark:text-emerald-400' 
+                            : 'bg-red-50 border-red-250 text-red-800 dark:bg-red-950/20 dark:border-transparent dark:text-emerald-400'
                       }`}>
                         {customer.status}
                       </span>
                     </td>
-                    <td className="py-3 text-zinc-500 dark:text-zinc-400 max-w-[150px] truncate" title={customer.notes}>
+                    <td className="py-3 text-black font-bold max-w-[150px] truncate" title={customer.notes}>
                       {customer.notes || '-'}
                     </td>
                     <td className="py-3 text-right">
