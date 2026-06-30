@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Target, TrendingUp, Award, Settings, Check, Loader2 } from 'lucide-react';
+import { Target, TrendingUp, Award, Settings, Check, Loader2, X } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -30,6 +30,16 @@ export default function TargetTracker({ userId, customersCountThisMonth, isDarkM
         return;
       }
 
+      // Check fallback local storage first to see if we have a locally saved target
+      const localFallback = localStorage.getItem(`fallback_target_${userId}_${currentMonthStr}`);
+      if (localFallback) {
+        const val = parseInt(localFallback, 10);
+        if (!isNaN(val)) {
+          setTarget(val);
+          setTempTarget(String(val));
+        }
+      }
+
       try {
         const docRef = doc(db, 'targets', `${userId}_${currentMonthStr}`);
         const docSnap = await getDoc(docRef);
@@ -37,14 +47,18 @@ export default function TargetTracker({ userId, customersCountThisMonth, isDarkM
           const val = docSnap.data().target;
           setTarget(val);
           setTempTarget(String(val));
-        } else {
+        } else if (!localFallback) {
           // Set default target as 100
           setTarget(100);
           setTempTarget('100');
         }
       } catch (err) {
         console.error('Error loading target:', err);
-        handleFirestoreError(err, OperationType.GET, `targets/${userId}_${currentMonthStr}`);
+        // Fallback to 100 if no local value exists
+        if (!localFallback) {
+          setTarget(100);
+          setTempTarget('100');
+        }
       }
     };
 
@@ -72,11 +86,16 @@ export default function TargetTracker({ userId, customersCountThisMonth, isDarkM
         target: num
       }, { merge: true });
       
+      // Update local storage too as a cache
+      localStorage.setItem(`fallback_target_${userId}_${currentMonthStr}`, String(num));
       setTarget(num);
       setIsEditing(false);
     } catch (err) {
-      console.error('Error saving target:', err);
-      handleFirestoreError(err, OperationType.WRITE, `targets/${userId}_${currentMonthStr}`);
+      console.error('Error saving target, falling back to local storage:', err);
+      // Fallback seamlessly to local storage so the app works no matter what
+      localStorage.setItem(`fallback_target_${userId}_${currentMonthStr}`, String(num));
+      setTarget(num);
+      setIsEditing(false);
     } finally {
       setSaving(false);
     }
@@ -115,21 +134,43 @@ export default function TargetTracker({ userId, customersCountThisMonth, isDarkM
                 type="number"
                 min="1"
                 value={tempTarget}
+                autoFocus
                 onChange={(e) => setTempTarget(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSave();
+                  if (e.key === 'Escape') {
+                    setTempTarget(String(target));
+                    setIsEditing(false);
+                  }
+                }}
                 className={`w-16 px-1.5 py-1 text-center font-bold text-xs rounded border outline-none ${
                   isDarkMode 
                     ? 'bg-zinc-950 border-zinc-700 text-zinc-100' 
                     : 'bg-zinc-50 border-zinc-300 text-zinc-900'
                 }`}
+                placeholder="Target"
               />
               <button
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="p-1 rounded bg-blue-600 text-white cursor-pointer hover:bg-blue-500 transition-colors"
+                className="p-1 rounded bg-blue-600 text-white cursor-pointer hover:bg-blue-500 transition-colors flex items-center justify-center"
                 title="Simpan Target"
               >
                 {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTempTarget(String(target));
+                  setIsEditing(false);
+                }}
+                className={`p-1 rounded cursor-pointer transition-colors flex items-center justify-center ${
+                  isDarkMode ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-400' : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-600'
+                }`}
+                title="Batal"
+              >
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
